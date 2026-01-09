@@ -3,19 +3,14 @@ flask-cors
 python-dotenv
 
 langgraph
-langchain-core
-
+langchain
+chromadb        
 sentence-transformers
 torch
+pypdf
+requests
 
 psycopg2-binary
 sqlalchemy
-pgvector
-
-pypdf
-tiktoken
-
 python-jose
 passlib[bcrypt]
-
-requests
