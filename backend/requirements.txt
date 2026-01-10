@@ -1,16 +1,33 @@
-flask
-flask-cors
-python-dotenv
+# flask
+# flask-cors
+# python-dotenv
 
-langgraph
-langchain
-chromadb        
-sentence-transformers
-torch
-pypdf
-requests
+# langgraph
+# langchain
+# chromadb        
+# sentence-transformers
+# torch
+# pypdf
+# requests
 
-psycopg2-binary
-sqlalchemy
-python-jose
-passlib[bcrypt]
+# psycopg2-binary
+# sqlalchemy
+# python-jose
+# passlib[bcrypt]
+
+
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+langchain==0.1.4
+langchain-community==0.0.16
+langgraph==0.0.20
+chromadb==0.4.22
+sentence-transformers==2.3.1
+python-dotenv==1.0.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+httpx==0.26.0
+beautifulsoup4==4.12.3
+pypdf==3.17.4
+python-multipart==0.0.6
+ollama==0.1.6
