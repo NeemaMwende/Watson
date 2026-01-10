@@ -1,8 +1,8 @@
 from langchain_community.llms import Ollama
-from langchain_community.embeddings import OllamaEmbeddings
-from langchain.prompts import ChatPromptTemplate
 import os
 from dotenv import load_dotenv
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama import OllamaEmbeddings
 
 load_dotenv()
 
