@@ -23,8 +23,10 @@ export default function DashboardHeader() {
     <header className="bg-white border-b border-slate-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Welcome back, John</h1>
-          <p className="text-sm text-slate-600">How can Watson assist you today?</p>
+          <h1 className="text-xl font-bold text-slate-900">
+            Welcome back, John
+          </h1>
+          <p className="text-sm text-slate-600">What is on your mind today? </p>
         </div>
 
         <DropdownMenu>
