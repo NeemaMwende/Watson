@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,10 +14,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Scale } from "lucide-react";
+import { Scale, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function SignupForm() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -31,10 +34,81 @@ export default function SignupForm() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, just navigate to dashboard (no auth yet)
-    router.push("/dashboard");
+    setIsLoading(true);
+
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords don't match", {
+        description: "Please make sure both passwords are identical.",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate password length
+    if (formData.password.length < 6) {
+      toast.error("Password too short", {
+        description: "Password must be at least 6 characters long.",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.text();
+
+      if (!response.ok) {
+        throw new Error(data || "Failed to create account");
+      }
+
+      toast.success("Account created!", {
+        description: "Logging you in...",
+      });
+
+      // Auto login after registration
+      const result = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        toast.error("Login failed", {
+          description:
+            "Account created but auto-login failed. Please login manually.",
+        });
+        router.push("/login");
+      } else {
+        toast.success("Welcome to Watson!", {
+          description: "Your account is ready to use.",
+        });
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (error) {
+      toast.error("Registration failed", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -65,6 +139,7 @@ export default function SignupForm() {
                 value={formData.name}
                 onChange={handleChange}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -77,6 +152,7 @@ export default function SignupForm() {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -89,6 +165,8 @@ export default function SignupForm() {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                disabled={isLoading}
+                minLength={6}
               />
             </div>
             <div className="space-y-2">
@@ -101,13 +179,23 @@ export default function SignupForm() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
+                disabled={isLoading}
+                minLength={6}
               />
             </div>
             <Button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700"
+              disabled={isLoading}
             >
-              Create Account
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </form>
 

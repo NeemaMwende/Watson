@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import {
   Scale,
   MessageSquare,
@@ -47,7 +49,6 @@ export default function DashboardSidebar({
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"chats" | "files">("chats");
 
-  // Mock data - will be replaced with real data later
   const [chats] = useState<Chat[]>([
     {
       id: "1",
@@ -84,8 +85,19 @@ export default function DashboardSidebar({
     },
   ]);
 
-  const handleLogout = () => {
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await signOut({ redirect: false });
+      toast.success("Logged out successfully", {
+        description: "See you next time!",
+      });
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      toast.error("Logout failed", {
+        description: "Something went wrong. Please try again.",
+      });
+    }
   };
 
   const formatTimestamp = (date: Date) => {

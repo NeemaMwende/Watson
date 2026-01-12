@@ -2,7 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { LogOut, User } from "lucide-react";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,8 +17,19 @@ import {
 export default function DashboardHeader() {
   const router = useRouter();
 
-  const handleLogout = () => {
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await signOut({ redirect: false });
+      toast.success("Logged out successfully", {
+        description: "See you next time!",
+      });
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      toast.error("Logout failed", {
+        description: "Something went wrong. Please try again.",
+      });
+    }
   };
 
   return (
@@ -26,7 +39,9 @@ export default function DashboardHeader() {
           <h1 className="text-xl font-bold text-slate-900">
             Welcome back, John
           </h1>
-          <p className="text-sm text-slate-600">What is on your mind today? </p>
+          <p className="text-sm text-slate-600">
+            How can Watson assist you today?
+          </p>
         </div>
 
         <DropdownMenu>
