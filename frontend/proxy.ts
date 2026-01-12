@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const PUBLIC_PATHS = ["/login", "/signup", "/api/auth"];
+const PUBLIC_PATHS = ["/login", "/signup", "/api/auth", "/api/auth/callback"];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -35,10 +35,9 @@ export async function proxy(req: NextRequest) {
     maxAge: 0,
   });
 
-  // If no token OR token existed → force login
   if (!token) return response;
 
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {

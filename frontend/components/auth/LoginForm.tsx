@@ -38,7 +38,7 @@ export default function LoginForm() {
         toast.error("Authentication Failed", {
           description: "Invalid email or password. Please try again.",
         });
-      } else {
+      } else if (result?.ok) {
         toast.success("Welcome back!", {
           description: "You have successfully logged in.",
         });
