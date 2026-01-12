@@ -50,20 +50,19 @@ export default function ChatInterface({ chatId }: ChatInterfaceProps) {
   }, [messages]);
 
   // Reset chat when chatId changes
-  useEffect(() => {
-    if (chatId) {
-      // Load chat messages based on chatId (mock for now)
-      setMessages([
-        {
-          id: "1",
-          role: "assistant",
-          content:
-            "Hello! I'm Watson, your AI legal assistant. How may I assist you today?",
-          timestamp: new Date(),
-        },
-      ]);
-    }
-  }, [chatId]);
+  // useEffect(() => {
+  //   if (chatId) {
+  //     setMessages([
+  //       {
+  //         id: "1",
+  //         role: "assistant",
+  //         content:
+  //           "Hello! I'm Watson, your AI legal assistant. How may I assist you today?",
+  //         timestamp: new Date(),
+  //       },
+  //     ]);
+  //   }
+  // }, [chatId]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -103,7 +102,6 @@ export default function ChatInterface({ chatId }: ChatInterfaceProps) {
     setUploadedFiles([]);
     setIsLoading(true);
 
-    // Simulate AI response (replace with actual API call later)
     setTimeout(() => {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),

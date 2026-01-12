@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,17 +14,44 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Scale } from "lucide-react";
+import { Scale, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    router.push("/dashboard");
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        toast.error("Authentication Failed", {
+          description: "Invalid email or password. Please try again.",
+        });
+      } else if (result?.ok) {
+        toast.success("Welcome back!", {
+          description: "You have successfully logged in.",
+        });
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (error) {
+      toast.error("Something went wrong", {
+        description: "An unexpected error occurred. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -53,6 +81,7 @@ export default function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
                 className="w-full"
               />
             </div>
@@ -73,19 +102,28 @@ export default function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
                 className="w-full"
               />
             </div>
             <Button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700"
+              disabled={isLoading}
             >
-              Sign In
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm">
-            <span className="text-slate-600">No account yet? </span>
+            <span className="text-slate-600">No account? </span>
             <Link
               href="/signup"
               className="text-blue-600 hover:underline font-medium"

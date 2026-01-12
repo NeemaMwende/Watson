@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import {
   Scale,
   MessageSquare,
@@ -21,6 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSession } from "next-auth/react";
 
 interface Chat {
   id: string;
@@ -47,27 +50,41 @@ export default function DashboardSidebar({
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"chats" | "files">("chats");
 
-  // Mock data - will be replaced with real data later
-  const [chats] = useState<Chat[]>([
-    {
-      id: "1",
-      title: "Contract Review Question",
-      lastMessage: "What are the key clauses...",
-      timestamp: new Date(Date.now() - 1000 * 60 * 30),
-    },
-    {
-      id: "2",
-      title: "Employment Law Query",
-      lastMessage: "Can you explain the difference...",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    },
-    {
-      id: "3",
-      title: "Intellectual Property Rights",
-      lastMessage: "How do I protect my trademark...",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    },
-  ]);
+  const { data: session } = useSession();
+  const user = session?.user;
+
+  const initials =
+    user?.name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() ?? "U";
+
+  const [chats] = useState<Chat[]>(() => {
+    const now = Date.now();
+
+    return [
+      {
+        id: "1",
+        title: "Contract Review Question",
+        lastMessage: "What are the key clauses...",
+        timestamp: new Date(now - 1000 * 60 * 30),
+      },
+      {
+        id: "2",
+        title: "Employment Law Query",
+        lastMessage: "Can you explain the difference...",
+        timestamp: new Date(now - 1000 * 60 * 60 * 2),
+      },
+      {
+        id: "3",
+        title: "Intellectual Property Rights",
+        lastMessage: "How do I protect my trademark...",
+        timestamp: new Date(now - 1000 * 60 * 60 * 24),
+      },
+    ];
+  });
 
   const [files] = useState([
     {
@@ -84,8 +101,19 @@ export default function DashboardSidebar({
     },
   ]);
 
-  const handleLogout = () => {
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await signOut({ redirect: false });
+      toast.success("Logged out successfully", {
+        description: "See you next time!",
+      });
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      toast.error("Logout failed", {
+        description: "Something went wrong. Please try again.",
+      });
+    }
   };
 
   const formatTimestamp = (date: Date) => {
@@ -261,17 +289,17 @@ export default function DashboardSidebar({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 min-w-0 flex-1">
             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-              <span className="text-sm font-medium text-white">JD</span>
+              <span className="text-sm font-medium text-white">{initials}</span>
             </div>
+
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-white truncate">
-                John Doe
+                {user?.name ?? "User"}
               </p>
-              <p className="text-xs text-slate-400 truncate">
-                john@lawfirm.com
-              </p>
+              <p className="text-xs text-slate-400 truncate">{user?.email}</p>
             </div>
           </div>
+
           <Button
             variant="ghost"
             size="sm"
