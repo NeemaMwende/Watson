@@ -7,7 +7,7 @@ import { verifyPassword } from "@/lib/password";
 export const authOptions = {
   adapter: PostgresAdapter(pool),
   session: {
-    strategy: "database",
+    strategy: "jwt",
   },
   providers: [
     Credentials({
