@@ -1,11 +1,11 @@
 import NextAuth, { type AuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import PostgresAdapter from "@auth/pg-adapter";
+// import PostgresAdapter from "@auth/pg-adapter";
 import { pool } from "@/lib/db";
 import { verifyPassword } from "@/lib/password";
 
-export const authOptions = {
-  adapter: PostgresAdapter(pool),
+export const authOptions: AuthOptions = {
+  // adapter: PostgresAdapter(pool),
   session: {
     strategy: "jwt",
   },
