@@ -21,19 +21,19 @@ export async function proxy(req: NextRequest) {
   const response = NextResponse.redirect(new URL("/login", req.url));
 
   // Always kill the session cookie
-  response.cookies.set({
-    name: "__Secure-next-auth.session-token",
-    value: "",
-    path: "/",
-    maxAge: 0,
-  });
+  // response.cookies.set({
+  //   name: "__Secure-next-auth.session-token",
+  //   value: "",
+  //   path: "/",
+  //   maxAge: 0,
+  // });
 
-  response.cookies.set({
-    name: "next-auth.session-token",
-    value: "",
-    path: "/",
-    maxAge: 0,
-  });
+  // response.cookies.set({
+  //   name: "next-auth.session-token",
+  //   value: "",
+  //   path: "/",
+  //   maxAge: 0,
+  // });
 
   if (!token) return response;
 
@@ -41,5 +41,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/:path*"],
+  matcher: ["/dashboard/:path*"],
 };
