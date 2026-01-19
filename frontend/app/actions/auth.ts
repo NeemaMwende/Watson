@@ -13,7 +13,7 @@ export async function loginAction(formData: FormData) {
   const parsed = loginSchema.safeParse(raw);
 
   if (!parsed.success) {
-    throw new Error(parsed.error.errors[0].message);
+    throw new Error(parsed.error.issues[0].message);
   }
 
   const { email, password } = parsed.data;
