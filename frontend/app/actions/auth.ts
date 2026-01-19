@@ -2,14 +2,21 @@
 
 import { signIn } from "next-auth/react";
 import { redirect } from "next/navigation";
+import { loginSchema } from "@/lib/schemas/auth";
 
 export async function loginAction(formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
+  const raw = {
+    email: formData.get("email"),
+    password: formData.get("password"),
+  };
 
-  if (!email || !password) {
-    throw new Error("Missing credentials");
+  const parsed = loginSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    throw new Error(parsed.error.errors[0].message);
   }
+
+  const { email, password } = parsed.data;
 
   const result = await signIn("credentials", {
     email,
@@ -17,8 +24,8 @@ export async function loginAction(formData: FormData) {
     redirect: false,
   });
 
-  if (result?.ok) {
-    throw new Error("Inavlid email or password");
+  if (!result || result.error) {
+    throw new Error("Invalid email or password");
   }
 
   redirect("/dashboard");
