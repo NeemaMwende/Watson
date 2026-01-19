@@ -1,16 +1,26 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { hashPassword } from "@/lib/password";
+import { signupSchema } from "@/lib/schemas/auth";
 
 export async function POST(req: Request) {
-  const { name, email, password } = await req.json();
+  const body = await req.json();
 
-  if (!email || !password) {
-    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  const parsed = signupSchema.safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.errors[0].message },
+      { status: 400 }
+    );
   }
 
+  const { name, email, password } = parsed.data;
+
+  const normalizedEmail = email.toLowerCase().trim();
+
   const existing = await pool.query(`SELECT id FROM "User" WHERE email = $1`, [
-    email,
+    normalizedEmail,
   ]);
 
   if (existing.rows.length > 0) {
@@ -22,7 +32,7 @@ export async function POST(req: Request) {
   await pool.query(
     `INSERT INTO "User" (id, name, email, password, "emailVerified")
      VALUES (gen_random_uuid(), $1, $2, $3, NULL)`,
-    [name, email, hashedPassword]
+    [name, normalizedEmail, hashedPassword]
   );
 
   return NextResponse.json({ success: true });
